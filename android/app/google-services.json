@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "500880198162",
+    "project_id": "parktronic-78ffd",
+    "storage_bucket": "parktronic-78ffd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:500880198162:android:20fcbba316b354f627e6cb",
+        "android_client_info": {
+          "package_name": "com.example.parktronic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "500880198162-7kakg1p8t6r9llk30bu5di8v8uqphrc1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.parktronic",
+            "certificate_hash": "9cfe32d28b43baf41dbb639db555210abddddaab"
+          }
+        },
+        {
+          "client_id": "500880198162-cipc4ku3ob96bfaj7blirupovo2km4ve.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB13xuXE8seVpzMWoH1Q__yF4T-rhx9r9E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "500880198162-cipc4ku3ob96bfaj7blirupovo2km4ve.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
