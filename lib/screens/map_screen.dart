@@ -109,45 +109,12 @@ class _MapScreenState extends State<MapScreen> {
                   }
                 },
               ),
-              //added code
-              // Positioned(
-              //   top: MediaQuery.of(context).size.height - 250.0,
-              //   left: 10.0,
-              //   child: Container(
-              //     height: 125.0,
-              //     width: MediaQuery.of(context).size.width,
-              //     child: ListView(
-              //       scrollDirection: Axis.horizontal,
-              //       padding: EdgeInsets.all(8.0),
-              //       children: parkings.map((e) {
-              //         return parkingCard(e);
-              //       }).toList(),
-              //     ),
-              //   ),
-              // ),
             ],
           ),
         ],
       ),
     );
   }
-
-  // Widget parkingCard(parking) {
-  //   return Padding(
-  //       padding: EdgeInsets.only(left: 2.0, top: 10.0),
-  //       child: InkWell(
-  //         onTap: () {},
-  //         child: Container(
-  //           height: 100.0,
-  //           width: 125.0,
-  //           decoration: BoxDecoration(borderRadius: BorderRadius.circular(5.0)),
-  //           color: Colors.white,
-  //           child: Center(
-  //             child: Text(parking['parkingName'].toString()),
-  //           ),
-  //         ),
-  //       ));
-  // }
 
   void onMapCreated(controller) {
     setState(() {

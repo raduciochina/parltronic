@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:parktronic/screens/home_screen.dart';
 import 'package:parktronic/screens/map_screen.dart';
+import 'package:parktronic/screens/map_screenv2.dart';
 import 'package:parktronic/screens/registration_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -173,7 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
           .then((uid) => {
                 Fluttertoast.showToast(msg: "Login OK"),
                 Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => MapScreen()))
+                    MaterialPageRoute(builder: (context) => MapScreenV2()))
               })
           .catchError((e) {
         Fluttertoast.showToast(msg: e!.message);
