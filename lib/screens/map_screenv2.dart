@@ -42,7 +42,7 @@ class _MapScreenV2State extends State<MapScreenV2> {
             );
           }
           if (!snapshot.hasData) {
-            return CircularProgressIndicator();
+            return Center(child: CircularProgressIndicator());
           }
 
           // return ParkingList(documents: snapshot.data!.docs);
@@ -111,8 +111,11 @@ class _ParkingListTileState extends State<ParkingListTile> {
       trailing: IconButton(
         icon: Icon(Icons.book),
         onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => ReservationScreen()));
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ReservationScreen(document: widget.document)));
         },
       ),
       leading: Container(
@@ -123,7 +126,12 @@ class _ParkingListTileState extends State<ParkingListTile> {
         height: 60,
       ),
       title: Text(widget.document['name']),
-      subtitle: Text(widget.document["address"]),
+      subtitle: Text(widget.document["address"] +
+          ", " +
+          widget.document["capacity"].toString() +
+          " locuri, " +
+          widget.document["price"].toString() +
+          " lei/ora"),
       onTap: () async {
         final controller = await widget.mapController.future;
         await controller.animateCamera(
