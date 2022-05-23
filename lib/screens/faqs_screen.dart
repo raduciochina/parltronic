@@ -15,7 +15,6 @@ class FaqsScreen extends StatelessWidget {
             ),
             onPressed: null)
       ]),
-      drawer: NavigationDrawer(),
       body: ListView.builder(
         itemBuilder: (BuildContext context, int index) =>
             EntryItem(data[index]),

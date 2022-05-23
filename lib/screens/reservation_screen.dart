@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_number_picker/flutter_number_picker.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ReservationScreen extends StatefulWidget {
   const ReservationScreen({Key? key, required this.document}) : super(key: key);
@@ -17,6 +18,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
   var parkingsCollection = FirebaseFirestore.instance.collection('parkings');
   var setDefaultCarModel = true;
   var carModel;
+  var numberOfHours;
 
   var carCollection = FirebaseFirestore.instance.collection('vehicles');
 
@@ -98,7 +100,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
                       minValue: 1,
                       step: 1,
                       onValue: (value) {
-                        print(value.toString());
+                        numberOfHours = value;
                       },
                     ),
                     SizedBox(
@@ -117,8 +119,8 @@ class _ReservationScreenState extends State<ReservationScreen> {
                           //     .toList();
                           // print(listaMasini.first);
                           if (setDefaultCarModel) {
-                            carModel = snapshot.data!.docs[0].get('model');
-                            print(carModel + "hello _____________________--");
+                            carModel = snapshot.data!.docs[0].get("model");
+                            //print(carModel + "hello _____________________--");
                             //debugPrint('setDefault make: $carMake');
                           }
 
@@ -150,11 +152,79 @@ class _ReservationScreenState extends State<ReservationScreen> {
                         minimumSize: Size.fromHeight(50),
                         textStyle: TextStyle(fontSize: 20),
                       ),
-                      onPressed: () {
+                      onPressed: () async {
+                        var total = parkingDetails['price'] * numberOfHours;
                         // controllerEmail.text = '',
                         // controllerMessage.text = '',
                         // controllerName.text = '',
                         // controllerSubject.text = '',
+                        if (parkingDetails['capacity'] > 0) {
+                          print(parkingDetails['capacity']);
+                          print(total);
+                          print(carModel);
+                          //print()
+                          DocumentReference createdRecord =
+                              await FirebaseFirestore.instance
+                                  .collection('reservations')
+                                  .add({
+                            'cid': carModel,
+                            'pid': parkingDetails['pid'],
+                            'uid': user?.uid,
+                            'time': numberOfHours,
+                            'total': total,
+                          });
+                          FirebaseFirestore.instance
+                              .collection('reservations')
+                              .doc(createdRecord.id)
+                              .update({'rid': createdRecord.id});
+
+                          FirebaseFirestore.instance
+                              .collection('parkings')
+                              .doc(parkingDetails['pid'])
+                              .update(
+                                  {'capacity': parkingDetails['capacity'] - 1});
+
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text("Confirmare rezervare"),
+                              content: Text(
+                                  "Confirmare rezervare loc de parcare pentru " +
+                                      numberOfHours.toString() +
+                                      " ore, " +
+                                      " total de plata " +
+                                      total.toString() +
+                                      " lei."),
+                              actions: [
+                                TextButton(
+                                  child: Text("DA"),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                TextButton(
+                                  child: Text("NU"),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                )
+                              ],
+                            ),
+                          );
+                        } else {
+                          AlertDialog(
+                            title: const Text('Alerta'),
+                            content: const Text('Aceasta parcare este plina.'),
+                            actions: <Widget>[
+                              TextButton(
+                                child: const Text('INAPOI'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        }
                       },
                       child: Text("REZERVA"),
                     )

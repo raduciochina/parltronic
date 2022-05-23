@@ -10,6 +10,7 @@ import 'package:parktronic/screens/faqs_screen.dart';
 import 'package:parktronic/screens/map_screenv2.dart';
 import 'package:parktronic/screens/profil_screen.dart';
 import 'package:parktronic/screens/profile_photo_screen.dart';
+import 'package:parktronic/screens/reservation_history_screen.dart';
 import 'package:parktronic/screens/settings_screen.dart';
 
 import 'login_screen.dart';
@@ -107,8 +108,8 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                 height: 16,
               ),
               buildMenuItem(
-                  text: "Setari",
-                  icon: Icons.settings,
+                  text: "Istoric Rezervari",
+                  icon: Icons.history,
                   onClicked: () => selectedItem(context, 2)),
               SizedBox(
                 height: 16,
@@ -187,8 +188,8 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
             .push(MaterialPageRoute(builder: ((context) => CarsScreen())));
         break;
       case 2:
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: ((context) => SettingsScreen())));
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: ((context) => ReservationHistoryScreen())));
         break;
 
       case 3:
