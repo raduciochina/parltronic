@@ -41,11 +41,18 @@ dependencies:
   intl: ^0.17.0
   http: ^0.13.4
   flutter_number_picker: ^1.0.4 
+  nfc_manager: ^3.1.1
 
 dev_dependencies:
   flutter_lints: ^1.0.0
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.9.2
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

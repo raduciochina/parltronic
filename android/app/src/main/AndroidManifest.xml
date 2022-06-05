@@ -6,11 +6,13 @@
   <!-- Include only if your app benefits from precise location access. -->
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <uses-permission android:name="android.permission.NFC" />
+
 
    <application
-        android:label="parktronic"
+        android:label="ParkTronic"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/logo">
         <meta-data android:name="com.google.android.geo.API_KEY"
         android:value="AIzaSyCku_wAN8XdaltlVPp_4qsAd30_PZmpPgo"/>
         <activity

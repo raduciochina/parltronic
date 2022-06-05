@@ -1,10 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class ReservationModel {
   String cid;
   String pid;
   String rid;
   int time;
   String uid;
-  String total;
+  double total;
+  Timestamp data;
+  String parkingName;
+  String photoUrl;
 
   ReservationModel({
     required this.cid,
@@ -13,5 +18,21 @@ class ReservationModel {
     required this.time,
     required this.uid,
     required this.total,
+    required this.data,
+    required this.parkingName,
+    required this.photoUrl,
   });
+
+  factory ReservationModel.fromMap(map) {
+    return ReservationModel(
+        cid: map['cid'],
+        pid: map['pid'],
+        rid: map['rid'],
+        time: map['time'],
+        uid: map['uid'],
+        total: map['total'],
+        data: map['date'],
+        parkingName: map['name'],
+        photoUrl: map['photo_url']);
+  }
 }

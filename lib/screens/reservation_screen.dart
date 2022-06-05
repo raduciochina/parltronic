@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_number_picker/flutter_number_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:nfc_manager/nfc_manager.dart';
 
 class ReservationScreen extends StatefulWidget {
   const ReservationScreen({Key? key, required this.document}) : super(key: key);
@@ -18,7 +19,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
   var parkingsCollection = FirebaseFirestore.instance.collection('parkings');
   var setDefaultCarModel = true;
   var carModel;
-  var numberOfHours;
+  var numberOfHours = 1;
 
   var carCollection = FirebaseFirestore.instance.collection('vehicles');
 
@@ -100,7 +101,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
                       minValue: 1,
                       step: 1,
                       onValue: (value) {
-                        numberOfHours = value;
+                        numberOfHours = int.parse(value.toString());
                       },
                     ),
                     SizedBox(
@@ -163,26 +164,6 @@ class _ReservationScreenState extends State<ReservationScreen> {
                           print(total);
                           print(carModel);
                           //print()
-                          DocumentReference createdRecord =
-                              await FirebaseFirestore.instance
-                                  .collection('reservations')
-                                  .add({
-                            'cid': carModel,
-                            'pid': parkingDetails['pid'],
-                            'uid': user?.uid,
-                            'time': numberOfHours,
-                            'total': total,
-                          });
-                          FirebaseFirestore.instance
-                              .collection('reservations')
-                              .doc(createdRecord.id)
-                              .update({'rid': createdRecord.id});
-
-                          FirebaseFirestore.instance
-                              .collection('parkings')
-                              .doc(parkingDetails['pid'])
-                              .update(
-                                  {'capacity': parkingDetails['capacity'] - 1});
 
                           showDialog(
                             context: context,
@@ -198,8 +179,45 @@ class _ReservationScreenState extends State<ReservationScreen> {
                               actions: [
                                 TextButton(
                                   child: Text("DA"),
-                                  onPressed: () {
+                                  onPressed: () async {
+                                    // Check availability
+                                    // bool isAvailable =
+                                    //     await NfcManager.instance.isAvailable();
+                                    // NfcManager.instance.startSession(
+                                    //   onDiscovered: (NfcTag tag) async {
+                                    //     // Do something with an NfcTag instance.
+                                    //     Fluttertoast.showToast(
+                                    //         msg: "Rezervarea este confirmata.");
+                                    //   },
+                                    // );
+                                    // NfcManager.instance.stopSession();
+                                    DocumentReference createdRecord =
+                                        await FirebaseFirestore.instance
+                                            .collection('reservations')
+                                            .add({
+                                      'cid': carModel,
+                                      'pid': parkingDetails['pid'],
+                                      'photo_url': parkingDetails['photo'],
+                                      'uid': user?.uid,
+                                      'time': numberOfHours,
+                                      'total': total,
+                                      'date': DateTime.now(),
+                                      'name': parkingDetails['name'],
+                                    });
+                                    FirebaseFirestore.instance
+                                        .collection('reservations')
+                                        .doc(createdRecord.id)
+                                        .update({'rid': createdRecord.id});
+
+                                    FirebaseFirestore.instance
+                                        .collection('parkings')
+                                        .doc(parkingDetails['pid'])
+                                        .update({
+                                      'capacity': parkingDetails['capacity'] - 1
+                                    });
                                     Navigator.pop(context);
+                                    Fluttertoast.showToast(
+                                        msg: "Rezervare efecutata.");
                                   },
                                 ),
                                 TextButton(
