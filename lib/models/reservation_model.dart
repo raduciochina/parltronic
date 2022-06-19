@@ -10,6 +10,8 @@ class ReservationModel {
   Timestamp data;
   String parkingName;
   String photoUrl;
+  Timestamp enddata;
+  String plateNo;
 
   ReservationModel({
     required this.cid,
@@ -21,18 +23,23 @@ class ReservationModel {
     required this.data,
     required this.parkingName,
     required this.photoUrl,
+    required this.enddata,
+    required this.plateNo,
   });
 
   factory ReservationModel.fromMap(map) {
     return ReservationModel(
-        cid: map['cid'],
-        pid: map['pid'],
-        rid: map['rid'],
-        time: map['time'],
-        uid: map['uid'],
-        total: map['total'],
-        data: map['date'],
-        parkingName: map['name'],
-        photoUrl: map['photo_url']);
+      cid: map['cid'],
+      pid: map['pid'],
+      rid: map['rid'],
+      time: map['time'],
+      uid: map['uid'],
+      total: map['total'],
+      data: map['date'],
+      parkingName: map['name'],
+      photoUrl: map['photo_url'],
+      enddata: map['enddate'],
+      plateNo: map['plate_no'],
+    );
   }
 }

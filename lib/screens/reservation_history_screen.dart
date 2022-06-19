@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:parktronic/models/reservation_model.dart';
 import 'package:parktronic/screens/single_reservation_screen.dart';
+import 'package:intl/locale.dart';
 
 class ReservationHistoryScreen extends StatefulWidget {
   const ReservationHistoryScreen({Key? key}) : super(key: key);
@@ -12,15 +15,18 @@ class ReservationHistoryScreen extends StatefulWidget {
 }
 
 class _ReservationHistoryScreenState extends State<ReservationHistoryScreen> {
-  Stream<List<ReservationModel>> reservationModelStream = FirebaseFirestore
-      .instance
-      .collection("reservations")
-      .snapshots()
-      .map((snapshot) => snapshot.docs
-          .map((doc) => ReservationModel.fromMap(doc.data()))
-          .toList());
+  User? user = FirebaseAuth.instance.currentUser;
+
   @override
   Widget build(BuildContext context) {
+    Stream<List<ReservationModel>> reservationModelStream = FirebaseFirestore
+        .instance
+        .collection("reservations")
+        .where('uid', isEqualTo: user?.uid)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => ReservationModel.fromMap(doc.data()))
+            .toList());
     return Scaffold(
         appBar: AppBar(
           title: Text("Istoric rezervari"),
@@ -37,7 +43,9 @@ class _ReservationHistoryScreenState extends State<ReservationHistoryScreen> {
                     child: ListTile(
                       title: Text(reservationModels[index].parkingName),
                       subtitle: Text(
-                        reservationModels[index].data.toDate().toString(),
+                        DateFormat('E, d MMM yyyy HH:mm')
+                            .format(reservationModels[index].data.toDate())
+                            .toString(),
                       ),
                       trailing: Icon(Icons.arrow_forward),
                       onTap: () {

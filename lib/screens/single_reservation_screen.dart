@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:parktronic/models/reservation_model.dart';
 
 class ReservationDetailsScreen extends StatelessWidget {
@@ -32,12 +33,20 @@ class ReservationDetailsScreen extends StatelessWidget {
             Padding(
               padding: EdgeInsets.all(8.0),
               child: Text("Pe data de " +
-                  reservation.data.toDate().toString() +
+                  DateFormat('MM-dd-yyyy HH:mm')
+                      .format(reservation.data.toDate())
+                      .toString() +
                   ", ati parcat autoturismul personal " +
                   reservation.cid +
+                  ", cu numarul de inmatriculare " +
+                  reservation.plateNo +
                   ", avand un total de plata in valoare de " +
                   reservation.total.toString() +
-                  " lei."),
+                  " lei. Rezervarea expira la " +
+                  DateFormat('MM-dd-yyyy HH:mm')
+                      .format(reservation.enddata.toDate())
+                      .toString() +
+                  "."),
             ),
           ],
         ),

@@ -19,6 +19,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
   var parkingsCollection = FirebaseFirestore.instance.collection('parkings');
   var setDefaultCarModel = true;
   var carModel;
+  var plateNumber;
   var numberOfHours = 1;
 
   var carCollection = FirebaseFirestore.instance.collection('vehicles');
@@ -115,14 +116,10 @@ class _ReservationScreenState extends State<ReservationScreen> {
                           return Text('Error = ${snapshot.error}');
                         if (snapshot.hasData) {
                           var masini = snapshot.data?.docs;
-                          // var listaMasini = snapshot.data!.docs
-                          //     .map((e) => e.data())
-                          //     .toList();
-                          // print(listaMasini.first);
                           if (setDefaultCarModel) {
                             carModel = snapshot.data!.docs[0].get("model");
-                            //print(carModel + "hello _____________________--");
-                            //debugPrint('setDefault make: $carMake');
+                            plateNumber =
+                                snapshot.data!.docs[0].get("plate_no");
                           }
 
                           return DropdownButton(
@@ -155,10 +152,6 @@ class _ReservationScreenState extends State<ReservationScreen> {
                       ),
                       onPressed: () async {
                         var total = parkingDetails['price'] * numberOfHours;
-                        // controllerEmail.text = '',
-                        // controllerMessage.text = '',
-                        // controllerName.text = '',
-                        // controllerSubject.text = '',
                         if (parkingDetails['capacity'] > 0) {
                           print(parkingDetails['capacity']);
                           print(total);
@@ -180,17 +173,6 @@ class _ReservationScreenState extends State<ReservationScreen> {
                                 TextButton(
                                   child: Text("DA"),
                                   onPressed: () async {
-                                    // Check availability
-                                    // bool isAvailable =
-                                    //     await NfcManager.instance.isAvailable();
-                                    // NfcManager.instance.startSession(
-                                    //   onDiscovered: (NfcTag tag) async {
-                                    //     // Do something with an NfcTag instance.
-                                    //     Fluttertoast.showToast(
-                                    //         msg: "Rezervarea este confirmata.");
-                                    //   },
-                                    // );
-                                    // NfcManager.instance.stopSession();
                                     DocumentReference createdRecord =
                                         await FirebaseFirestore.instance
                                             .collection('reservations')
@@ -203,6 +185,10 @@ class _ReservationScreenState extends State<ReservationScreen> {
                                       'total': total,
                                       'date': DateTime.now(),
                                       'name': parkingDetails['name'],
+                                      'enddate': DateTime.now().add(
+                                        Duration(hours: numberOfHours),
+                                      ),
+                                      'plate_no': plateNumber,
                                     });
                                     FirebaseFirestore.instance
                                         .collection('reservations')

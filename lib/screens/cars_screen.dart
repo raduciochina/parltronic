@@ -24,14 +24,14 @@ class _CarsScreenState extends State<CarsScreen> {
   //     .map((snapshot) =>
   //         snapshot.docs.map((doc) => CarModel.fromMap(doc.data())).toList());
 
-  Stream<List<CarModel>> carModelStreams = FirebaseFirestore.instance
-      .collection("vehicles")
-      .snapshots()
-      .map((snapshot) =>
-          snapshot.docs.map((doc) => CarModel.fromMap(doc.data())).toList());
-
   @override
   Widget build(BuildContext context) {
+    Stream<List<CarModel>> carModelStreams = FirebaseFirestore.instance
+        .collection("vehicles")
+        .where("uid", isEqualTo: user?.uid)
+        .snapshots()
+        .map((snapshot) =>
+            snapshot.docs.map((doc) => CarModel.fromMap(doc.data())).toList());
     return Scaffold(
         appBar: AppBar(
           title: Text("Autovehiculele personale"),

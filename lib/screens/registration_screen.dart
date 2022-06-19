@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:parktronic/models/user_model.dart';
 import 'package:parktronic/screens/home_screen.dart';
+import 'package:parktronic/screens/map_screenv2.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({Key? key}) : super(key: key);
@@ -21,6 +22,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final firstNameEditingController = new TextEditingController();
   final secondNameEditingController = new TextEditingController();
   final emailEditingController = new TextEditingController();
+  final phoneNumberController = new TextEditingController();
   final passwordEditingController = new TextEditingController();
   final confirmPasswordEditingController = new TextEditingController();
 
@@ -50,6 +52,35 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         ),
         contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
         hintText: "Nume",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+    final phoneNumberField = TextFormField(
+      autofocus: false,
+      controller: phoneNumberController,
+      keyboardType: TextInputType.phone,
+      validator: (value) {
+        RegExp regex = new RegExp(r'^.{10,}$');
+        if (value!.isEmpty) {
+          return ("Va rugam sa introduceti numarul de telefon!");
+        }
+        if (!regex.hasMatch(value)) {
+          return ("Introduceti un numar de telefon valid - minim 10 caractere");
+        }
+        return null;
+      },
+      onSaved: (value) {
+        phoneNumberController.text = value!;
+      },
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        prefixIcon: Icon(
+          Icons.account_circle,
+        ),
+        contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+        hintText: "Numar de telefon",
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
         ),
@@ -240,6 +271,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     SizedBox(
                       height: 20,
                     ),
+                    phoneNumberField,
+                    SizedBox(
+                      height: 20,
+                    ),
                     passwordField,
                     SizedBox(
                       height: 20,
@@ -287,6 +322,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     userModel.uid = user.uid;
     userModel.firstName = firstNameEditingController.text;
     userModel.secondName = secondNameEditingController.text;
+    userModel.phoneNumber = phoneNumberController.text;
 
     await firebaseFirestore
         .collection("users")
@@ -296,7 +332,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
     Navigator.pushAndRemoveUntil(
         (context),
-        MaterialPageRoute(builder: (context) => HomeScreen()),
+        MaterialPageRoute(builder: (context) => MapScreenV2()),
         (route) => false);
   }
 }
