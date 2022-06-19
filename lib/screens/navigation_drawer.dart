@@ -166,13 +166,17 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
         onTap: onClicked,
         child: Container(
           padding: padding.add(EdgeInsets.symmetric(vertical: 40)),
-          child: Row(children: [
-            CircleAvatar(
-              radius: 30,
-              backgroundImage: NetworkImage(
-                  "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.pngfind.com%2Fmpng%2FhiJwTJo_icon-user-icon-hd-png-download%2F&psig=AOvVaw0TKZzN8kh-FF2ZvDR1iATU&ust=1652907529724000&source=images&cd=vfe&ved=0CAwQjRxqFwoTCJiPxcK25_cCFQAAAAAdAAAAABAP"),
-            )
-          ]),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 30,
+                // backgroundImage: NetworkImage(
+                //   "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.pngfind.com%2Fmpng%2FhiJwTJo_icon-user-icon-hd-png-download%2F&psig=AOvVaw0TKZzN8kh-FF2ZvDR1iATU&ust=1652907529724000&source=images&cd=vfe&ved=0CAwQjRxqFwoTCJiPxcK25_cCFQAAAAAdAAAAABAP",
+                // ),
+                backgroundImage: AssetImage("assets/ciochina7.jpg"),
+              ),
+            ],
+          ),
         ),
       );
 
