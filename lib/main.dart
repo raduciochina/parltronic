@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         nextScreen: LoginScreen(),
         splashTransition: SplashTransition.fadeTransition,
         splashIconSize: double.maxFinite,
-        duration: 1700,
+        duration: 1650,
       ),
     );
   }

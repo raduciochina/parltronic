@@ -9,6 +9,7 @@ class ParkingModel {
   String address;
   int capacity;
   double price;
+  String pid;
 
   ParkingModel({
     required this.location,
@@ -17,6 +18,7 @@ class ParkingModel {
     required this.address,
     required this.capacity,
     required this.price,
+    required this.pid,
   });
 
   factory ParkingModel.fromMap(map) {
@@ -27,6 +29,7 @@ class ParkingModel {
       capacity: map['capacity'],
       location: map['location'],
       price: map['price'],
+      pid: map['pid'],
     );
   }
 

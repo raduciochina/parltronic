@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:parktronic/screens/admin_screen.dart';
 import 'package:parktronic/screens/home_screen.dart';
 import 'package:parktronic/screens/map_screen.dart';
 import 'package:parktronic/screens/map_screenv2.dart';
@@ -153,7 +155,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: TextStyle(
                                 fontWeight: FontWeight.w600, fontSize: 15),
                           ),
-                        )
+                        ),
+                        // GestureDetector(child: Text("Admin Login"), onTap: ,)
                       ],
                     )
                   ],
@@ -169,16 +172,21 @@ class _LoginScreenState extends State<LoginScreen> {
   //login function
   void signIn(String email, String password) async {
     if (_formKey.currentState!.validate()) {
-      await _auth
-          .signInWithEmailAndPassword(email: email, password: password)
-          .then((uid) => {
-                Fluttertoast.showToast(msg: "Login OK"),
-                Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => MapScreenV2()))
-              })
-          .catchError((e) {
-        Fluttertoast.showToast(msg: e!.message);
-      });
+      if (email == "admin@admin.com" && password == "admin@admin.com") {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => AdminScreen()));
+      } else {
+        await _auth
+            .signInWithEmailAndPassword(email: email, password: password)
+            .then((uid) => {
+                  Fluttertoast.showToast(msg: "Login OK"),
+                  Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => MapScreenV2()))
+                })
+            .catchError((e) {
+          Fluttertoast.showToast(msg: e!.message);
+        });
+      }
     }
   }
 }
