@@ -41,7 +41,7 @@ class ReservationDetailsScreen extends StatelessWidget {
                   ", cu numarul de inmatriculare " +
                   reservation.plateNo +
                   ", avand un total de plata in valoare de " +
-                  reservation.total.toString() +
+                  reservation.total.toStringAsFixed(2) +
                   " lei. Rezervarea expira la " +
                   DateFormat('MM-dd-yyyy HH:mm')
                       .format(reservation.enddata.toDate())

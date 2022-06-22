@@ -8,6 +8,7 @@ import 'package:parktronic/screens/cars_screen.dart';
 import 'package:parktronic/screens/contact_screen.dart';
 import 'package:parktronic/screens/faqs_screen.dart';
 import 'package:parktronic/screens/map_screenv2.dart';
+import 'package:parktronic/screens/portofel_screen.dart';
 import 'package:parktronic/screens/profil_screen.dart';
 import 'package:parktronic/screens/profile_photo_screen.dart';
 import 'package:parktronic/screens/reservation_history_screen.dart';
@@ -93,8 +94,8 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
                 height: 10,
               ),
               buildMenuItem(
-                text: "Profil",
-                icon: Icons.people,
+                text: "Portofel",
+                icon: Icons.money,
                 onClicked: () => selectedItem(context, 0),
               ),
               SizedBox(
@@ -185,7 +186,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
     switch (index) {
       case 0:
         Navigator.of(context) // TODO: modify back to profile screen
-            .push(MaterialPageRoute(builder: ((context) => ProfilScreen())));
+            .push(MaterialPageRoute(builder: ((context) => PortofelScreen())));
         break;
       case 1:
         Navigator.of(context)

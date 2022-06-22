@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parktronic/models/parking.dart';
 import 'package:parktronic/screens/navigation_drawer.dart';
 import 'package:parktronic/screens/reservation_screen.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class MapScreenV2 extends StatefulWidget {
   const MapScreenV2({Key? key}) : super(key: key);
@@ -16,6 +18,8 @@ class MapScreenV2 extends StatefulWidget {
 class _MapScreenV2State extends State<MapScreenV2> {
   Stream<QuerySnapshot>? _parkingPlaces;
   final Completer<GoogleMapController> _mapController = Completer();
+  QRViewController? controller;
+  ValueNotifier<String> result = new ValueNotifier("");
 
   @override
   void initState() {
@@ -26,11 +30,87 @@ class _MapScreenV2State extends State<MapScreenV2> {
         .snapshots();
   }
 
+  void _qrCodeRead() {
+    final qrKey = GlobalKey(debugLabel: 'QR');
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.all(10),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('Cancel'))
+          ],
+          content: Container(
+            width: 300,
+            height: 300,
+            child: QRView(
+              key: qrKey,
+              onQRViewCreated: (QRViewController controller) {
+                setState(
+                  () {
+                    this.controller = controller;
+                  },
+                );
+
+                controller.scannedDataStream.listen(
+                  (barcode) {
+                    DocumentSnapshot<Object> doc_snapshot = FirebaseFirestore
+                        .instance
+                        .collection("parkings")
+                        .doc(barcode.code)
+                        .get() as DocumentSnapshot<Object>;
+
+                    setState(
+                      () {
+                        result.value = barcode.code!;
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return ReservationScreen(
+                                document: doc_snapshot,
+                              );
+                            },
+                          ),
+                        );
+                        print(doc_snapshot.id);
+                        controller.pauseCamera();
+                        controller.dispose();
+                      },
+                    );
+                  },
+                );
+              },
+              overlay: QrScannerOverlayShape(
+                  borderColor: Colors.blue,
+                  borderRadius: 10,
+                  borderLength: 20,
+                  borderWidth: 10,
+                  cutOutSize: MediaQuery.of(context).size.width * 0.5),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: NavigationDrawer(),
       appBar: AppBar(
+        actions: [
+          IconButton(
+              onPressed: () {
+                _qrCodeRead();
+
+                //ValueListenable listenable;
+              },
+              icon: Icon(Icons.qr_code))
+        ],
         title: Text("Harta"),
       ),
       body: StreamBuilder<QuerySnapshot>(

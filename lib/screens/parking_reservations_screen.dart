@@ -1,8 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:intl/intl.dart';
 import 'package:parktronic/models/parking.dart';
+import 'package:parktronic/models/user_model.dart';
+import 'package:parktronic/screens/login_screen.dart';
+import 'package:parktronic/screens/search_widget.dart';
+import 'package:flutter_sms/flutter_sms.dart';
+import 'package:telephony/telephony.dart';
 
 import '../models/reservation_model.dart';
 
@@ -15,9 +21,13 @@ class ParkingReservations extends StatefulWidget {
 }
 
 class _ParkingReservationsState extends State<ParkingReservations> {
+  String phoneNumber = "";
   var tileColor = Colors.greenAccent;
   var isOk;
   String search = "";
+  final Telephony telephony = Telephony.instance;
+
+  String query = '';
   final controller = TextEditingController();
   @override
   void initState() {
@@ -49,20 +59,34 @@ class _ParkingReservationsState extends State<ParkingReservations> {
             .map((doc) => ReservationModel.fromMap(doc.data()))
             .toList());
 
-    Future queryData(String queryString) async {
-      return FirebaseFirestore.instance
-          .collection("reservations")
-          .where("pid", isEqualTo: widget.parkingModel.pid)
-          .where("plate_no", isGreaterThanOrEqualTo: queryString)
-          .get();
-    }
+    Stream<List<ReservationModel>> reservationModelFilterStream =
+        FirebaseFirestore.instance
+            .collection("reservations")
+            .where("pid", isEqualTo: widget.parkingModel.pid)
+            .where("plate_no", isGreaterThanOrEqualTo: search)
+            .snapshots()
+            .map((snapshot) => snapshot.docs
+                .map((doc) => ReservationModel.fromMap(doc.data()))
+                .toList());
+    Stream<List<UserModel>> userModels = FirebaseFirestore.instance
+        .collection("users")
+        .snapshots()
+        .map((snapshot) =>
+            snapshot.docs.map((doc) => UserModel.fromMap(doc.data())).toList());
+
+    // Widget buildSearch() => SearchWidget(
+    //     text: query,
+    //     onChanged: queryData,
+    //     hintText: "Numarul de inmatriculare");
 
     return Scaffold(
       appBar: AppBar(
         title: Text("Rezervari " + widget.parkingModel.parkingName),
       ),
       body: StreamBuilder<List<ReservationModel>>(
-        stream: reservationModelStream,
+        stream: (search != "" || search != null)
+            ? reservationModelStream
+            : reservationModelFilterStream,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<ReservationModel> reservationModels = snapshot.data!;
@@ -71,10 +95,15 @@ class _ParkingReservationsState extends State<ParkingReservations> {
                 Container(
                   margin: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                   child: TextField(
+                    onChanged: (val) {
+                      setState(() {
+                        search = val;
+                      });
+                    },
                     controller: controller,
                     decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.search),
-                      hintText: "Numar masina",
+                      hintText: "Numarul de inmatriculare",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                         borderSide: const BorderSide(color: Colors.green),
@@ -82,6 +111,7 @@ class _ParkingReservationsState extends State<ParkingReservations> {
                     ),
                   ),
                 ),
+                //buildSearch(),
                 Expanded(
                   child: ListView.builder(
                     itemCount: reservationModels.length,
@@ -89,6 +119,20 @@ class _ParkingReservationsState extends State<ParkingReservations> {
                       if (search.isEmpty) {
                         return Card(
                           child: ListTile(
+                            onLongPress: () async {
+                              var user = await FirebaseFirestore.instance
+                                  .collection("users")
+                                  .doc(reservationModels[index].uid)
+                                  .get()
+                                  .then((value) {
+                                phoneNumber = value.data()!['phoneNumber'];
+                              });
+                              print(phoneNumber);
+                              String message =
+                                  "Va informam ca rezervarea dvs. a expirat. Va rugam sa luati masuri!";
+                              telephony.sendSms(
+                                  to: phoneNumber, message: message);
+                            },
                             tileColor: reservationModels[index]
                                             .data
                                             .millisecondsSinceEpoch <
@@ -152,7 +196,7 @@ class _ParkingReservationsState extends State<ParkingReservations> {
                               //     context,
                               //     MaterialPageRoute(
                               //         builder: (context) => ReservationDetailsScreen(
-                              //
+                              //B 1
                               //          reservation: reservationModels[index])));
                             },
                           ),
@@ -174,5 +218,13 @@ class _ParkingReservationsState extends State<ParkingReservations> {
         },
       ),
     );
+  }
+
+  void _sendSMS(String message, List<String> recipents) async {
+    String _result = await sendSMS(message: message, recipients: recipents)
+        .catchError((onError) {
+      print(onError);
+    });
+    print(_result);
   }
 }

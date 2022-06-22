@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parktronic/models/parking.dart';
+import 'package:parktronic/screens/login_screen.dart';
 import 'package:parktronic/screens/parking_reservations_screen.dart';
 
 class AdminScreen extends StatefulWidget {
@@ -23,6 +24,15 @@ class _AdminScreenState extends State<AdminScreen> {
     return Scaffold(
         appBar: AppBar(
           title: Text("Administrator"),
+          actions: [
+            IconButton(
+              onPressed: () {
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => LoginScreen()));
+              },
+              icon: Icon(Icons.exit_to_app),
+            )
+          ],
         ),
         body: StreamBuilder<List<ParkingModel>>(
           stream: parkingModelStream,

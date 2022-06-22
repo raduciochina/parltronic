@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_number_picker/flutter_number_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nfc_manager/nfc_manager.dart';
+import 'dart:math';
+import 'package:cron/cron.dart';
+
+import 'package:telephony/telephony.dart';
 
 class ReservationScreen extends StatefulWidget {
   const ReservationScreen({Key? key, required this.document}) : super(key: key);
@@ -121,7 +125,6 @@ class _ReservationScreenState extends State<ReservationScreen> {
                             plateNumber =
                                 snapshot.data!.docs[0].get("plate_no");
                           }
-
                           return DropdownButton(
                             value: carModel,
                             items: snapshot.data!.docs.map((value) {
@@ -201,6 +204,8 @@ class _ReservationScreenState extends State<ReservationScreen> {
                                         .update({
                                       'capacity': parkingDetails['capacity'] - 1
                                     });
+                                    cronSchedule(numberOfHours, parkingDetails);
+
                                     Navigator.pop(context);
                                     Fluttertoast.showToast(
                                         msg: "Rezervare efecutata.");
@@ -242,5 +247,28 @@ class _ReservationScreenState extends State<ReservationScreen> {
         },
       ),
     );
+  }
+
+  Future<void> cronSchedule(
+      int numberOfHours, Map<String, dynamic> parkingDetails) async {
+    final cron = Cron();
+
+    try {
+      cron.schedule(
+          Schedule.parse(
+              '0 ${DateTime.now().minute} ${numberOfHours + DateTime.now().hour} * * *'),
+          () {
+        FirebaseFirestore.instance
+            .collection('parkings')
+            .doc(parkingDetails['pid'])
+            .update({'capacity': parkingDetails['capacity'] + 1});
+      });
+
+      await Future.delayed(Duration(seconds: 20));
+      await cron.close();
+    } on ScheduleParseException {
+      // "ScheduleParseException" is thrown if cron parsing is failed.
+      await cron.close();
+    }
   }
 }
