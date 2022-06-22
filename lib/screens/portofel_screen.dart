@@ -264,19 +264,26 @@ class _AddCardDialogState extends State<AddCardDialog> {
               TextFormField(
                 controller: cardNumberController,
                 decoration: InputDecoration(
-                  hintText: "Adaugati numarul cardului",
+                  hintText: "Introduceti numarul cardului",
                   filled: true,
                 ),
+                keyboardType: TextInputType.number,
                 maxLength: 30,
                 textInputAction: TextInputAction.next,
-                validator: (String? text) {
-                  if (text == null || text.isEmpty) {
-                    return 'Va rugam sa adaugati numarul cardului!';
+                validator: (value) {
+                  RegExp regex = new RegExp(
+                      r'^(?:4[0-9]{12}(?:[0-9]{3})?|[25][1-7][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})$');
+                  if (value == null || value.isEmpty) {
+                    return 'Va rugam sa introduceti numarul cardului!';
+                  }
+                  if (!regex.hasMatch(value)) {
+                    return ("Introduceti un numar de card valid!");
                   }
                   return null;
                 },
               ),
               TextFormField(
+                keyboardType: TextInputType.datetime,
                 controller: expiringDateController,
                 decoration: InputDecoration(
                   hintText: "Adaugati data de expirare a cardului",
@@ -284,14 +291,20 @@ class _AddCardDialogState extends State<AddCardDialog> {
                 ),
                 maxLength: 30,
                 textInputAction: TextInputAction.next,
-                validator: (String? text) {
-                  if (text == null || text.isEmpty) {
+                validator: (value) {
+                  RegExp regex = new RegExp(
+                      r' ^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]|(?:Jan|Mar|May|Jul|Aug|Oct|Dec)))\1|(?:(?:29|30)(\/|-|\.)(?:0?[1,3-9]|1[0-2]|(?:Jan|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec))\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)(?:0?2|(?:Feb))\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9]|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep))|(?:1[0-2]|(?:Oct|Nov|Dec)))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$');
+                  if (value == null || value.isEmpty) {
                     return 'Va rugam sa introduceti data expirarii!';
+                  }
+                  if (!regex.hasMatch(value)) {
+                    return ("Introduceti o data valida!");
                   }
                   return null;
                 },
               ),
               TextFormField(
+                keyboardType: TextInputType.number,
                 controller: cvcController,
                 decoration: InputDecoration(
                   hintText: "Adaugati codul CVC",
@@ -299,9 +312,14 @@ class _AddCardDialogState extends State<AddCardDialog> {
                 ),
                 maxLength: 15,
                 textInputAction: TextInputAction.next,
-                validator: (String? text) {
-                  if (text == null || text.isEmpty) {
-                    return 'Va rugam sa introduceti codul CVC!';
+                validator: (value) {
+                  RegExp regex = new RegExp(r'^[0-9]{3}$');
+
+                  if (value == null || value.isEmpty) {
+                    return 'Va rugam sa introduceti data expirarii!';
+                  }
+                  if (!regex.hasMatch(value)) {
+                    return ("Introduceti o data valida!");
                   }
                   return null;
                 },
