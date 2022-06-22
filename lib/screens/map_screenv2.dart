@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parktronic/models/parking.dart';
 import 'package:parktronic/screens/navigation_drawer.dart';
@@ -58,29 +59,38 @@ class _MapScreenV2State extends State<MapScreenV2> {
 
                 controller.scannedDataStream.listen(
                   (barcode) {
-                    DocumentSnapshot<Object> doc_snapshot = FirebaseFirestore
-                        .instance
-                        .collection("parkings")
-                        .doc(barcode.code)
-                        .get() as DocumentSnapshot<Object>;
-
                     setState(
                       () {
                         result.value = barcode.code!;
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return ReservationScreen(
-                                document: doc_snapshot,
-                              );
-                            },
-                          ),
-                        );
-                        print(doc_snapshot.id);
+                        //print(doc_snapshot.id);
                         controller.pauseCamera();
                         controller.dispose();
                       },
                     );
+                  },
+                  onDone: () async {
+                    DocumentSnapshot<Object> docSnapshot =
+                        await FirebaseFirestore.instance
+                            .collection("parkings")
+                            .doc(result.value)
+                            .get();
+                    if (docSnapshot.exists) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return ReservationScreen(
+                              document: docSnapshot,
+                            );
+                          },
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Cod invalid. Incearca altul."),
+                        ),
+                      );
+                    }
                   },
                 );
               },
