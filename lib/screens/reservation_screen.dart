@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'dart:math';
 import 'package:cron/cron.dart';
+import 'package:parktronic/models/credit_card_model.dart';
 
 import 'package:telephony/telephony.dart';
 
@@ -22,12 +23,13 @@ class _ReservationScreenState extends State<ReservationScreen> {
 
   var parkingsCollection = FirebaseFirestore.instance.collection('parkings');
   var setDefaultCarModel = true;
+  var setDefaultCreditCard = true;
   var carModel;
+  String? cardSelectat;
   var plateNumber;
   var numberOfHours = 1;
-
+  int _value = 0;
   var carCollection = FirebaseFirestore.instance.collection('vehicles');
-
   //preia colectia de masini a utilizatorului curent
 
   @override
@@ -35,7 +37,14 @@ class _ReservationScreenState extends State<ReservationScreen> {
     Query queryByUserCars =
         carCollection.where('uid', isEqualTo: "${user!.uid}");
     var streamQuery = queryByUserCars.get().asStream();
-
+    Stream<List<CreditCard>> cardModelStreams = FirebaseFirestore.instance
+        .collection("cards")
+        .where("uid", isEqualTo: user?.uid)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => CreditCard.fromMap(doc.data()))
+            .toList());
+    var selectCard = "Selectati un card";
     return Scaffold(
       appBar: AppBar(
         title: Text("Rezerva loc de parcare"),
@@ -121,11 +130,16 @@ class _ReservationScreenState extends State<ReservationScreen> {
                         if (snapshot.hasData) {
                           var masini = snapshot.data?.docs;
                           if (setDefaultCarModel) {
-                            carModel = snapshot.data!.docs[0].get("model");
-                            plateNumber =
-                                snapshot.data!.docs[0].get("plate_no");
+                            if (snapshot.data!.docs.isNotEmpty) {
+                              carModel = snapshot.data!.docs[0].get("model");
+                              plateNumber =
+                                  snapshot.data!.docs[0].get("plate_no");
+                            } else {
+                              carModel = "";
+                            }
                           }
                           return DropdownButton(
+                            hint: Text("Nu aveti masini in aplicatie"),
                             value: carModel,
                             items: snapshot.data!.docs.map((value) {
                               return DropdownMenuItem(
@@ -148,6 +162,102 @@ class _ReservationScreenState extends State<ReservationScreen> {
                     SizedBox(
                       height: 15,
                     ),
+                    Text("Metoda de plata"),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Row(
+                          children: [
+                            Radio(
+                              value: 1,
+                              onChanged: (value) {
+                                setState(() {
+                                  _value = int.parse(value.toString());
+                                });
+                              },
+                              groupValue: _value,
+                            ),
+                            Text("Numerar"),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Radio(
+                              value: 2,
+                              onChanged: (value) {
+                                setState(() {
+                                  _value = int.parse(value.toString());
+                                });
+                              },
+                              groupValue: _value,
+                            ),
+                            Text("Card bancar")
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    _value == 2
+//                        ? Text("OK")
+                        ? StreamBuilder<List<CreditCard>>(
+                            stream: cardModelStreams,
+                            builder: (context, snapshot) {
+                              if (!snapshot.hasData) {
+                                return const Text(
+                                  "Nu aveti niciun card in aplicatie",
+                                );
+                              } else {
+                                List<CreditCard> cards = snapshot.data!;
+
+                                //String? cardSelectat;
+                                if (setDefaultCreditCard) {
+                                  if (cards.isNotEmpty) {
+                                    cardSelectat =
+                                        cards[0].cardNumber.toString();
+                                  } else {
+                                    cardSelectat = "";
+                                  }
+                                }
+                                return Column(
+                                  //crossAxisAlignment: CrossAxisAlignment.center,
+                                  //mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text("Va rugam sa selectati cardul"),
+                                    DropdownButton(
+                                      //icon: const Icon(Icons.arrow_downward),
+                                      value: cardSelectat,
+                                      hint: Text("Nu aveti carduri"),
+                                      items: cards
+                                          .map(
+                                            (card) => DropdownMenuItem(
+                                              value: card.cardNumber,
+                                              child: Text(
+                                                "Numar card: " +
+                                                    card.cardNumber.toString(),
+                                              ),
+                                            ),
+                                          )
+                                          .toList(),
+                                      onChanged: (String? newValue) {
+                                        setState(
+                                          () {
+                                            cardSelectat = newValue;
+                                            setDefaultCreditCard = false;
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                );
+                              }
+                            },
+                          )
+                        : Text(""),
+                    SizedBox(
+                      height: 15,
+                    ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         minimumSize: Size.fromHeight(50),
@@ -159,67 +269,79 @@ class _ReservationScreenState extends State<ReservationScreen> {
                           print(parkingDetails['capacity']);
                           print(total);
                           print(carModel);
-                          //print()
+                          print(_value);
 
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: Text("Confirmare rezervare"),
-                              content: Text(
+                          if (carModel == "" ||
+                              (cardSelectat == "" && _value == 2)) {
+                            Fluttertoast.showToast(
+                                msg:
+                                    "Va rugam introduceti datele pentru rezervare");
+                          } else {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text("Confirmare rezervare"),
+                                content: Text(
                                   "Confirmare rezervare loc de parcare pentru " +
                                       numberOfHours.toString() +
                                       " ore, " +
                                       " total de plata " +
                                       total.toString() +
-                                      " lei."),
-                              actions: [
-                                TextButton(
-                                  child: Text("DA"),
-                                  onPressed: () async {
-                                    DocumentReference createdRecord =
-                                        await FirebaseFirestore.instance
-                                            .collection('reservations')
-                                            .add({
-                                      'cid': carModel,
-                                      'pid': parkingDetails['pid'],
-                                      'photo_url': parkingDetails['photo'],
-                                      'uid': user?.uid,
-                                      'time': numberOfHours,
-                                      'total': total,
-                                      'date': DateTime.now(),
-                                      'name': parkingDetails['name'],
-                                      'enddate': DateTime.now().add(
-                                        Duration(hours: numberOfHours),
-                                      ),
-                                      'plate_no': plateNumber,
-                                    });
-                                    FirebaseFirestore.instance
-                                        .collection('reservations')
-                                        .doc(createdRecord.id)
-                                        .update({'rid': createdRecord.id});
-
-                                    FirebaseFirestore.instance
-                                        .collection('parkings')
-                                        .doc(parkingDetails['pid'])
-                                        .update({
-                                      'capacity': parkingDetails['capacity'] - 1
-                                    });
-                                    cronSchedule(numberOfHours, parkingDetails);
-
-                                    Navigator.pop(context);
-                                    Fluttertoast.showToast(
-                                        msg: "Rezervare efecutata.");
-                                  },
+                                      " lei.",
                                 ),
-                                TextButton(
-                                  child: Text("NU"),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                )
-                              ],
-                            ),
-                          );
+                                actions: [
+                                  TextButton(
+                                    child: Text("DA"),
+                                    onPressed: () async {
+                                      DocumentReference createdRecord =
+                                          await FirebaseFirestore.instance
+                                              .collection('reservations')
+                                              .add({
+                                        'cid': carModel,
+                                        'pid': parkingDetails['pid'],
+                                        'photo_url': parkingDetails['photo'],
+                                        'uid': user?.uid,
+                                        'time': numberOfHours,
+                                        'total': total,
+                                        'date': DateTime.now(),
+                                        'name': parkingDetails['name'],
+                                        'enddate': DateTime.now().add(
+                                          Duration(hours: numberOfHours),
+                                        ),
+                                        'plate_no': plateNumber,
+                                        'metodaPlata':
+                                            _value == 2 ? "card" : "numerar",
+                                      });
+                                      FirebaseFirestore.instance
+                                          .collection('reservations')
+                                          .doc(createdRecord.id)
+                                          .update({'rid': createdRecord.id});
+
+                                      FirebaseFirestore.instance
+                                          .collection('parkings')
+                                          .doc(parkingDetails['pid'])
+                                          .update({
+                                        'capacity':
+                                            parkingDetails['capacity'] - 1
+                                      });
+                                      cronSchedule(
+                                          numberOfHours, parkingDetails);
+
+                                      Navigator.pop(context);
+                                      Fluttertoast.showToast(
+                                          msg: "Rezervare efecutata.");
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: Text("NU"),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  )
+                                ],
+                              ),
+                            );
+                          }
                         } else {
                           AlertDialog(
                             title: const Text('Alerta'),

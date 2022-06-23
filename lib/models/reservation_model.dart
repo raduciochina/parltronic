@@ -12,6 +12,7 @@ class ReservationModel {
   String photoUrl;
   Timestamp enddata;
   String plateNo;
+  String metodaPlata;
 
   ReservationModel({
     required this.cid,
@@ -25,21 +26,22 @@ class ReservationModel {
     required this.photoUrl,
     required this.enddata,
     required this.plateNo,
+    required this.metodaPlata,
   });
 
   factory ReservationModel.fromMap(map) {
     return ReservationModel(
-      cid: map['cid'],
-      pid: map['pid'],
-      rid: map['rid'],
-      time: map['time'],
-      uid: map['uid'],
-      total: map['total'],
-      data: map['date'],
-      parkingName: map['name'],
-      photoUrl: map['photo_url'],
-      enddata: map['enddate'],
-      plateNo: map['plate_no'],
-    );
+        cid: map['cid'],
+        pid: map['pid'],
+        rid: map['rid'],
+        time: map['time'],
+        uid: map['uid'],
+        total: map['total'],
+        data: map['date'],
+        parkingName: map['name'],
+        photoUrl: map['photo_url'],
+        enddata: map['enddate'],
+        plateNo: map['plate_no'],
+        metodaPlata: map['metodaPlata']);
   }
 }
