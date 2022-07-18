@@ -26,7 +26,7 @@ class _ParkingReservationsState extends State<ParkingReservations> {
   var isOk;
   String search = "";
   final Telephony telephony = Telephony.instance;
-
+  bool toggle = false;
   String query = '';
   final controller = TextEditingController();
   @override
@@ -50,10 +50,29 @@ class _ParkingReservationsState extends State<ParkingReservations> {
 
   @override
   Widget build(BuildContext context) {
+    Stream<List<ReservationModel>> reservationModelStreamLast24h =
+        FirebaseFirestore.instance
+            .collection("reservations")
+            .where("pid", isEqualTo: widget.parkingModel.pid)
+            .where(
+              "date",
+              isGreaterThan:
+                  // Timestamp.now()
+                  //         .millisecondsSinceEpoch -
+                  //     86400000 * Timestamp.now().millisecondsSinceEpoch)
+
+                  // DateTime.now().subtract(Duration(days: 1)))
+                  Timestamp.now(),
+            )
+            .snapshots()
+            .map((snapshot) => snapshot.docs
+                .map((doc) => ReservationModel.fromMap(doc.data()))
+                .toList());
     Stream<List<ReservationModel>> reservationModelStream = FirebaseFirestore
         .instance
         .collection("reservations")
         .where("pid", isEqualTo: widget.parkingModel.pid)
+        // .orderBy("enddate", descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => ReservationModel.fromMap(doc.data()))
@@ -84,9 +103,15 @@ class _ParkingReservationsState extends State<ParkingReservations> {
         title: Text("Rezervari " + widget.parkingModel.parkingName),
       ),
       body: StreamBuilder<List<ReservationModel>>(
+        // stream: (search != "" || search != null)
+        //     ? reservationModelStream
+        //     : reservationModelFilterStream,
         stream: (search != "" || search != null)
             ? reservationModelStream
-            : reservationModelFilterStream,
+            : (toggle == true)
+                ? reservationModelStreamLast24h
+                : reservationModelFilterStream,
+
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<ReservationModel> reservationModels = snapshot.data!;
@@ -110,6 +135,13 @@ class _ParkingReservationsState extends State<ParkingReservations> {
                       ),
                     ),
                   ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Rezervarile din ultimele 24h"),
+                    buildSwitch(),
+                  ],
                 ),
                 //buildSearch(),
                 Expanded(
@@ -227,4 +259,14 @@ class _ParkingReservationsState extends State<ParkingReservations> {
     });
     print(_result);
   }
+
+  Widget buildSwitch() => Switch.adaptive(
+        value: toggle,
+        onChanged: (value) {
+          setState(() {
+            this.toggle = value;
+            print(toggle.toString());
+          });
+        },
+      );
 }

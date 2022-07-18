@@ -13,12 +13,14 @@ class AdminScreen extends StatefulWidget {
 }
 
 class _AdminScreenState extends State<AdminScreen> {
+  int toggle = 0;
   Stream<List<ParkingModel>> parkingModelStream = FirebaseFirestore.instance
       .collection("parkings")
       .snapshots()
       .map((snapshot) => snapshot.docs
           .map((doc) => ParkingModel.fromMap(doc.data()))
           .toList());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
